@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eporn - Universal Premium Live Network</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css" />
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.polyfilled.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #09090b; color: #f4f4f5; display: flex; flex-direction: column; min-height: 100vh; }
+        
+        header {
+            background-color: #111115; padding: 15px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #27272a; position: sticky; top: 0; z-index: 100;
+        }
+        .logo { font-size: 1.6rem; font-weight: 900; color: #ff9900; text-transform: uppercase; letter-spacing: 1px; text-decoration: none; }
+        .logo span { background: #ff9900; color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 2px; }
+        
+        .header-actions { display: flex; align-items: center; gap: 15px; }
+        .premium-btn { background: linear-gradient(45deg, #ff9900, #ff5500); color: #000; padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 13px; font-weight: bold; box-shadow: 0 4px 15px rgba(255, 153, 0, 0.3); }
+
+        .main-content { flex: 1; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px 15px; }
+        .ad-banner { max-width: 728px; min-height: 90px; margin: 10px auto 25px auto; display: flex; align-items: center; justify-content: center; }
+
+        .section-title { font-size: 1.3rem; margin-bottom: 20px; color: #fff; display: flex; align-items: center; gap: 8px; font-weight: 700; }
+        .section-title i { color: #ff9900; }
+
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+        @media (max-width: 768px) {
+            .video-grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 15px; }
+        }
+        @media (max-width: 480px) {
+            .video-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .ad-banner { min-height: 60px; width: 100%; }
+        }
+
+        .video-card { background: #111115; border-radius: 8px; overflow: hidden; cursor: pointer; border: 1px solid #1f1f23; transition: all 0.2s ease; position: relative; }
+        .video-card:hover { transform: translateY(-4px); border-color: #ff9900; box-shadow: 0 5px 15px rgba(255,153,0,0.1); }
+        .thumb-box { width: 100%; aspect-ratio: 16/10; background: #1f1f23; position: relative; }
+        .thumb-box img { width: 100%; height: 100%; object-fit: cover; }
+        .play-badge { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255, 153, 0, 0.9); color: #000; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; opacity: 0; transition: opacity 0.2s; }
+        .video-card:hover .play-badge { opacity: 1; }
+        .info-box { padding: 12px; }
+        .info-box h3 { font-size: 13px; font-weight: 600; line-height: 1.4; height: 36px; overflow: hidden; color: #e4e4e7; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+
+        /* Player Modal Setup */
+        .player-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { position: relative; width: 95%; max-width: 850px; background: #000; border-radius: 8px; overflow: hidden; box-shadow: 0 0 30px rgba(255, 153, 0, 0.3); }
+        .close-btn { position: absolute; top: -40px; right: 0; background: #ff9900; color: #000; border: none; padding: 6px 14px; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 12px; display: flex; align-items: center; gap: 5px; }
+        .plyr--video { --plyr-color-main: #ff9900; border-radius: 8px; }
+
+        footer { background-color: #111115; border-top: 1px solid #27272a; padding: 30px 20px; text-align: center; color: #52525b; font-size: 13px; margin-top: 50px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="#" class="logo">Eporn<span>X</span></a>
+        <div class="header-actions">
+            <a href="premium.html" class="premium-btn"><i class="fas fa-crown"></i> GO PREMIUM</a>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <div class="container">
+            <div class="ad-banner" id="topBanner"></div>
+
+            <h2 class="section-title"><i class="fas fa-broadcast-tower"></i> GLOBAL LIVE NETWORK</h2>
+            <div class="video-grid" id="videoGrid"></div>
+            
+            <div class="ad-banner" id="bottomBanner" style="margin-top: 40px;"></div>
+        </div>
+    </div>
+
+    <div class="player-modal" id="playerModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closePlayer()"><i class="fas fa-times"></i> CLOSE</button>
+            <video id="hlsPlayer" crossorigin playsinline controls></video>
+        </div>
+    </div>
+
+    <footer>
+        <div>&copy; 2026 Eporn Network. All Rights Reserved. Powered by High-Performance Global Cluster.</div>
+    </footer>
+
+    <script src="ads1.js"></script>
+    <script src="ads2.js"></script>
+    <script src="videoads.js"></script>
+
+    <script>
+        // 🔗 অলওয়েজ লাইভ গ্লোবাল সোর্স লিংক (iptv-org এর মেইন ইনডেক্স ফাইল যেখানে সব চ্যানেল একসাথে আছে)
+        const originalGitHubURL = "https://raw.githubusercontent.com/iptv-org/iptv/master/index.m3u";
+        
+        // 🚀 ক্লাউডফ্লেয়ার ব্যাকড গেটওয়ে (CORS নীতি এবং লোকাল ফাইল রেস্ট্রিকশন বাইপাস করার জন্য)
+        const githubRawM3U8URL = "https://corsproxy.io/?" + encodeURIComponent(originalGitHubURL);
+
+        const videoGrid = document.getElementById('videoGrid');
+        const playerModal = document.getElementById('playerModal');
+        const videoElement = document.getElementById('hlsPlayer');
+        let plyrPlayer;
+
+        // মেইন ইঞ্জিন: কোনো ফিল্টারিং ছাড়া গ্লোবাল ডাটা রেন্ডার করার মেকানিজম
+        async function fetchAndRenderAllStreams() {
+            try {
+                videoGrid.innerHTML = "<p style='grid-column: 1/-1; text-align:center; color:#ff9900; padding:40px; font-weight:600;'>SYNCHRONIZING WITH GLOBAL STREAM NETWORK...</p>";
+                
+                const response = await fetch(githubRawM3U8URL);
+                if (!response.ok) throw new Error("Proxy Network Fail");
+                
+                const textData = await response.text();
+                videoGrid.innerHTML = "";
+
+                const lines = textData.split('\n');
+                let channels = [];
+
+                for (let i = 0; i < lines.length; i++) {
+                    let line = lines[i].trim();
+                    
+                    if (line.startsWith('#EXTINF:')) {
+                        // ১. চ্যানেলের টাইটেল বের করা
+                        let title = "Premium Live Stream";
+                        if (line.includes(',')) {
+                            title = line.split(',').pop().trim();
+                        }
+
+                        // ২. থাম্বনেইল/লোগো রিড করা
+                        let thumbnail = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&q=80"; // ব্যাকআপ ইমেজ
+                        if (line.includes('tvg-logo=')) {
+                            let match = line.match(/tvg-logo="([^"]+)"/);
+                            if (match && match[1]) {
+                                thumbnail = match[1].trim();
+                                if (thumbnail.startsWith('http://')) {
+                                    thumbnail = "https://corsproxy.io/?" + encodeURIComponent(thumbnail);
+                                }
+                            }
+                        }
+
+                        // ৩. ভিডিওর আসল লাইভ লিংক রিড করা
+                        let url = "";
+                        if (i + 1 < lines.length && lines[i + 1].trim().startsWith('http')) {
+                            url = lines[i + 1].trim();
+                            i++; 
+                        }
+
+                        // 🎯 ওস্তাদ, এখানে ফিল্টার কন্ডিশন সম্পূর্ণ রিমুভ করা হয়েছে। সোর্স লিংক এবং টাইটেল পেলেই তা পুশ হবে।
+                        if (url && title && !title.includes('Unknown')) {
+                            channels.push({ title, thumbnail, url });
+                        }
+                    }
+                }
+
+                if (channels.length === 0) {
+                    fetchBackupDirect();
+                    return;
+                }
+
+                // গ্লোবাল সব চ্যানেল একসাথে গ্রিডে কার্ড আকারে সাজানো
+                channels.forEach(ch => {
+                    const card = document.createElement('div');
+                    card.className = 'video-card';
+                    
+                    card.onclick = () => {
+                        playerModal.style.display = 'flex';
+                        
+                        // মিক্সড কন্টেন্ট (HTTP) বাইপাস করার জন্য ভিডিও লিংকেও প্রক্সি প্রোটেকশন
+                        let securedVideoURL = ch.url;
+                        if (ch.url.startsWith('http://')) {
+                            securedVideoURL = "https://corsproxy.io/?" + encodeURIComponent(ch.url);
+                        }
+                        
+                        // ভিডিও প্লে হওয়ার আগে 'videoads.js' এর কাস্টম প্রি-রোল বিজ্ঞাপন মেকানিজম রান হবে
+                        triggerPreRollAd(securedVideoURL, videoElement, loadActualHlsStream);
+                    };
+
+                    card.innerHTML = `
+                        <div class="thumb-box">
+                            <img src="${ch.thumbnail}" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&q=80';" loading="lazy">
+                            <div class="play-badge"><i class="fas fa-play"></i></div>
+                        </div>
+                        <div class="info-box">
+                            <h3>${ch.title}</h3>
+                        </div>
+                    `;
+                    videoGrid.appendChild(card);
+                });
+
+            } catch (error) {
+                console.error(error);
+                fetchBackupDirect();
+            }
+        }
+
+        // ব্যাকআপ মেথড: প্রক্সি ফেইল করলে সরাসরি গিটহাব হিট করা
+        async function fetchBackupDirect() {
+            try {
+                const response = await fetch(originalGitHubURL);
+                if(!response.ok) throw new Error();
+                videoGrid.innerHTML = "<p style='grid-column:1/-1; text-align:center; color:#ff9900;'>DATA EXTRACTED, INITIALIZING REFRESH...</p>";
+                setTimeout(() => { location.reload(); }, 1000);
+            } catch(e) {
+                videoGrid.innerHTML = "<p style='grid-column:1/-1; text-align:center; color:#71717a;'>CORS POLICY BLOCKED LOCAL ENVIRONMENT. PLEASE LIVE DEPLOY TO VERCEL OR CLOUDFLARE TO RENDER GLOBAL NETWORKS.</p>";
+            }
+        }
+
+        // HLS প্লেয়ার ইঞ্জিন
+        function loadActualHlsStream(m3u8Url) {
+            if (plyrPlayer) { plyrPlayer.destroy(); }
+
+            if (Hls.isSupported()) {
+                const hls = new Hls({ maxStartLength: 10, maxMaxBufferLength: 30, enableWorker: true });
+                hls.loadSource(m3u8Url);
+                hls.attachMedia(videoElement);
+                window.hls = hls;
+                hls.on(Hls.Events.MANIFEST_PARSED, () => initPlyr());
+            } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+                videoElement.src = m3u8Url;
+                initPlyr();
+            }
+        }
+
+        function initPlyr() {
+            plyrPlayer = new Plyr(videoElement, {
+                controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen']
+            });
+            plyrPlayer.play().catch(e => console.log("Autoplay context waiting user click."));
+        }
+
+        function closePlayer() {
+            const oldAdContainer = document.getElementById('adOverlayContainer');
+            if (oldAdContainer) oldAdContainer.remove();
+            if (plyrPlayer) plyrPlayer.pause();
+            if (window.hls) window.hls.destroy();
+            videoElement.src = "";
+            playerModal.style.display = 'none';
+        }
+
+        window.addEventListener('DOMContentLoaded', fetchAndRenderAllStreams);
+    </script>
+</body>
+  </html>
