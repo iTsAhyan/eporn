@@ -20,39 +20,39 @@
     <div class="grid" id="main"></div>
 
     <script>
-        // প্রক্সি লিংক (এটি আপনার নেটওয়ার্কের ব্লকিং বাইপাস করবে)
-        const categories = [
-            "https://api.allorigins.win/get?url=" + encodeURIComponent("https://api.redtube.com/?data=redtube.Videos.searchVideos&search=trending&output=json"),
-            "https://api.allorigins.win/get?url=" + encodeURIComponent("https://api.redtube.com/?data=redtube.Videos.searchVideos&search=anal&output=json")
-        ];
+        // আপনার নতুন ওয়ার্কারের লিংক এখানে বসানো হয়েছে
+        const workerURL = "https://epornx.ahyanarfinofficial.workers.dev";
 
         async function loadContent() {
             const main = document.getElementById('main');
-            for (let url of categories) {
-                try {
-                    const res = await fetch(url);
-                    const raw = await res.json();
-                    const data = JSON.parse(raw.contents);
+            try {
+                const res = await fetch(workerURL);
+                const data = await res.json();
+                
+                // এপিআই রেসপন্স থেকে ভিডিও লিস্ট বের করা
+                data.videos.forEach(item => {
+                    const v = item.video;
+                    // ডিউরেশন ফিল্টার: ১০ মিনিট+
+                    const minutes = parseInt(v.duration.split(':')[0]);
                     
-                    data.videos.forEach(item => {
-                        const v = item.video;
-                        const minutes = parseInt(v.duration.split(':')[0]);
-                        
-                        if (minutes >= 10) {
-                            main.innerHTML += `
-                                <div class="card">
-                                    <img src="${v.default_thumb}" alt="thumb">
-                                    <div class="info">
-                                        <h3>${v.title}</h3>
-                                        <a href="${v.embed_url}" target="_blank" class="btn">PLAY NOW</a>
-                                    </div>
+                    if (minutes >= 10) {
+                        main.innerHTML += `
+                            <div class="card">
+                                <img src="${v.default_thumb}" alt="thumb">
+                                <div class="info">
+                                    <h3>${v.title}</h3>
+                                    <a href="${v.embed_url}" target="_blank" class="btn">PLAY NOW</a>
                                 </div>
-                            `;
-                        }
-                    });
-                } catch(e) { console.log("Category skip"); }
+                            </div>
+                        `;
+                    }
+                });
+            } catch(e) {
+                main.innerHTML = "<p style='text-align:center; color:red;'>ডেটা লোড হচ্ছে না। আপনার ওয়ার্কার লিংকটি চেক করুন।</p>";
+                console.error("এরর:", e);
             }
         }
+        
         loadContent();
     </script>
 </body>
