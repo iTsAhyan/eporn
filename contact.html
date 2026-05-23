@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - EpornX</title>
+    <style>
+        body { margin: 0; padding: 20px; background-color: #0f172a; color: #ffffff; font-family: sans-serif; }
+        .container { max-width: 500px; margin: 50px auto; background: #1e293b; padding: 30px; border-radius: 10px; }
+        h1 { text-align: center; color: #ef4444; }
+        input, textarea { width: 100%; padding: 10px; margin: 10px 0; border: none; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #ef4444; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #dc2626; }
+        #messageBox { display: none; text-align: center; margin-top: 20px; color: #22c55e; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Contact Us</h1>
+    <form id="contactForm">
+        <input type="text" placeholder="Your Name" required>
+        <input type="email" placeholder="Your Email" required>
+        <input type="text" placeholder="Subject" required>
+        <textarea rows="5" placeholder="Your Message" required></textarea>
+        <button type="submit">Send Message</button>
+    </form>
+    <div id="messageBox">Successfully Received! We will get back to you soon.</div>
+</div>
+
+<script>
+    document.getElementById('contactForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        this.style.display = 'none';
+        document.getElementById('messageBox').style.display = 'block';
+    });
+</script>
+
+</body>
+</html>
