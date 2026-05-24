@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /temp/
+Disallow: /search?*
+
+Sitemap: https://eporn.xxxtream.net/sitemap.xml
